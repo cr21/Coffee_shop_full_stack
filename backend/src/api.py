@@ -27,7 +27,7 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
-
+# public route
 @app.route("/drinks",methods=["GET"])
 def get_drinks():
     # fetch all drinks Data
@@ -138,8 +138,19 @@ def update_drink(payload,id):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@app.route("/drinks/<int:id>",methods=["DELETE"])
+@requires_auth("delete:drinks")
+def delete_drink(payload,id):
+    drink = Drink.query.filter(Drink.id == id).one_or_none()
 
+    if not drink:
+        abort(404)
+    try:
+        drink.delete()
+    except:
+        abort(400)
 
+    return jsonify({"success":True, "delete":id}),200
 ## Error Handling
 '''
 Example error handling for unprocessable entity
