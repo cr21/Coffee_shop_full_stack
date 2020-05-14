@@ -41,7 +41,7 @@ def get_token_auth_header():
             },401
         )
     parts = auth.split(" ")
-    print("Authorization Header",parts)
+    # print("Authorization Header",parts)
     if len(parts) == 1 :
         raise AuthError(
             {
@@ -67,7 +67,7 @@ def get_token_auth_header():
             401
         )
     token = parts[1]
-    print("JWT TOKEN",token)
+    # print("JWT TOKEN",token)
     return token
 '''
 @TODO implement check_permissions(permission, payload) method
@@ -81,6 +81,7 @@ def get_token_auth_header():
     return true otherwise
 '''
 def check_permissions(permission, payload):
+    print("payload",payload)
     if "permissions" not in payload:
         raise AuthError(
             {
@@ -113,7 +114,7 @@ def check_permissions(permission, payload):
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
 def verify_decode_jwt(token):
-    jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
+    jsonurl =  urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = {}
@@ -132,7 +133,9 @@ def verify_decode_jwt(token):
                 'n': key['n'],
                 'e': key['e']
             }
+    print("rsakey",rsa_key)
     if rsa_key:
+        
         try:
             payload = jwt.decode(
                 token,
@@ -181,12 +184,12 @@ def requires_auth(permission=''):
         @wraps(f)
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
-            try:
-                payload = verify_decode_jwt(token)
-            except:
-                abort(401)
+            # print("token",token)
+        
+            payload = verify_decode_jwt(token)
             check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
 
         return wrapper
     return requires_auth_decorator
+
