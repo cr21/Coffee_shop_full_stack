@@ -120,7 +120,7 @@ def add_new_drink(payload):
 '''
 
 
-@app.route("/drinks/<int: id>", methods=["PATCH"])
+@app.route("/drinks/<int:id>", methods=["PATCH"])
 @requires_auth("patch:drinks")
 def update_drink(payload, id):
     drink = Drink.query.filter(Drink.id == id).one_or_none()
